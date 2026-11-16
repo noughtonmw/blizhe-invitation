@@ -101,6 +101,12 @@ function updateScroll() {
       const distance = Math.abs(center - target);
       if (distance < nearest) { nearest = distance; nextActive = index; }
     });
+    // Small scroll reversals at a midpoint should not restart the light handoff.
+    const currentDistance = Math.abs(centers[activeProgramme] - target);
+    const handoffMargin = Math.min(22, viewport * .025);
+    if (nextActive !== activeProgramme && nearest + handoffMargin >= currentDistance) {
+      nextActive = activeProgramme;
+    }
     const routeTop = centers[0] - listRect.top;
     const routeHeight = centers.at(-1) - centers[0];
     const progress = clamp((target - centers[0]) / Math.max(1, routeHeight));
