@@ -28,6 +28,21 @@ const hero = document.querySelector('.hero');
 const programme = document.querySelector('.programme');
 const programmeList = document.querySelector('.programme-list');
 const programmeRows = [...programmeList.querySelectorAll('li')];
+const garland = document.querySelector('.programme-garland');
+const garlandCord = document.querySelector('.garland-cord');
+const garlandPath = garlandCord.querySelector('path');
+const bulbs = [...garland.querySelectorAll('.garland-bulb')];
+const clockTime = document.querySelector('.clock-time');
+const clockWrap = document.querySelector('.clock-wrap');
+const programmeTimes = programmeRows.map(row => {
+  const time = row.querySelector('time');
+  const match = time.dateTime.match(/T(\d{2}):(\d{2})/);
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  return { hours, minutes, total: hours * 60 + minutes, text: time.textContent, dateTime: time.dateTime };
+});
+const clockBaseMinute = programmeTimes[0].hours * 60;
+let garlandGeometry = '';
 const place = document.querySelector('.place');
 const rsvp = document.querySelector('.rsvp');
 const galleryScene = document.querySelector('.gallery-scene');
@@ -48,13 +63,15 @@ function motionAllowed() {
 function syncMotion() {
   body.classList.toggle('motion-paused', paused || reduceMotion.matches || document.hidden);
   toggle.setAttribute('aria-pressed', String(paused));
-  toggle.setAttribute('aria-label', paused ? 'Возобновить анимацию' : 'Приостановить анимацию');
+  toggle.setAttribute('aria-label', paused ? 'Включить анимацию' : 'Остановить анимацию');
+  toggle.title = paused ? 'Включить анимацию' : 'Остановить анимацию';
   toggle.querySelector('use').setAttribute('href', paused ? '#play' : '#pause');
   if (!motionAllowed()) {
     cancelAnimationFrame(pointerFrame);
     pointerFrame = 0;
     stage.style.setProperty('--tilt-x', '0deg');
     stage.style.setProperty('--tilt-y', '0deg');
+    finishEntrances();
   }
   scheduleScroll();
 }
@@ -84,6 +101,8 @@ function updateScroll() {
   });
   const rowRects = rects.has(programme) ? programmeRows.map(row => row.getBoundingClientRect()) : null;
   const listRect = rowRects ? programmeList.getBoundingClientRect() : null;
+  const garlandRect = rowRects ? garland.getBoundingClientRect() : null;
+  let nextGarlandGeometry = null;
   if (moving && rects.has(hero)) {
     const bounds = rects.get(hero);
     const progress = clamp(-bounds.top / (bounds.height * .72));
@@ -113,11 +132,22 @@ function updateScroll() {
     writes.push([programmeList, '--route-top', `${routeTop.toFixed(2)}px`]);
     writes.push([programmeList, '--route-height', `${routeHeight.toFixed(2)}px`]);
     writes.push([programmeList, '--route-progress', progress.toFixed(4)]);
+    const points = bulbs.map((bulb, index) => {
+      const row = rowRects[Math.floor(index / 2)];
+      const position = index % 2 === 0 ? 10 : row.height * .52 - 10;
+      const y = row.top - garlandRect.top + position;
+      const x = garlandRect.width * (.5 + Math.sin(index * 1.1) * .11);
+      const groupProgress = Math.floor(index / 2) / Math.max(1, programmeRows.length - 1);
+      const threshold = groupProgress - (index % 2 === 0 ? .13 : .08);
+      writes.push([bulb, '--lit', clamp((progress - threshold) / .08).toFixed(3)]);
+      return [x, y];
+    });
+    const signature = [garlandRect.width, garlandRect.height, ...points.flat()].map(value => value.toFixed(1)).join(',');
+    if (signature !== garlandGeometry) nextGarlandGeometry = { signature, points, width: garlandRect.width, height: garlandRect.height };
     if (moving) {
       const bounds = rects.get(programme);
       const passage = clamp((viewport - bounds.top) / (viewport + bounds.height));
       writes.push([programme, '--programme-beam', passage.toFixed(4)]);
-      writes.push([programme, '--clock-angle', `${(nextActive * 76 + passage * 36).toFixed(2)}deg`]);
     }
   }
   if (moving && rects.has(place)) {
@@ -138,6 +168,22 @@ function updateScroll() {
     writes.push([galleryScene, '--gallery-turn', `${(progress * 12 - 6).toFixed(2)}deg`]);
   }
   writes.forEach(([element, property, value]) => element.style.setProperty(property, value));
+  if (nextGarlandGeometry) {
+    const { points, width, height, signature } = nextGarlandGeometry;
+    garlandCord.setAttribute('viewBox', `0 0 ${width.toFixed(2)} ${height.toFixed(2)}`);
+    let path = `M${points[0][0].toFixed(2)} 0 L${points[0][0].toFixed(2)} ${points[0][1].toFixed(2)}`;
+    points.forEach(([x, y], index) => {
+      bulbs[index].style.left = `${x.toFixed(2)}px`;
+      bulbs[index].style.top = `${y.toFixed(2)}px`;
+      if (index === 0) return;
+      const previous = points[index - 1];
+      const mid = (previous[1] + y) / 2;
+      path += ` C${previous[0].toFixed(2)} ${mid.toFixed(2)} ${x.toFixed(2)} ${mid.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)}`;
+    });
+    path += ` L${points.at(-1)[0].toFixed(2)} ${height.toFixed(2)}`;
+    garlandPath.setAttribute('d', path);
+    garlandGeometry = signature;
+  }
   if (nextActive !== activeProgramme) {
     programmeRows.forEach((row, index) => {
       row.classList.toggle('is-active', index === nextActive);
@@ -145,7 +191,17 @@ function updateScroll() {
       else row.removeAttribute('aria-current');
     });
     activeProgramme = nextActive;
+    syncProgrammeClock(activeProgramme);
   }
+}
+
+function syncProgrammeClock(index) {
+  const time = programmeTimes[index];
+  programme.style.setProperty('--hour-angle', `${(time.hours % 12) * 30 + time.minutes * .5}deg`);
+  programme.style.setProperty('--minute-angle', `${(time.total - clockBaseMinute) * 6}deg`);
+  clockTime.textContent = time.text;
+  clockTime.dateTime = time.dateTime;
+  clockWrap.setAttribute('aria-label', `Время программы: ${time.text}`);
 }
 
 function scheduleScroll() {
@@ -193,6 +249,8 @@ const photos = [...gallery.querySelectorAll('.polaroid')];
 const galleryControls = document.querySelector('.gallery-controls');
 const galleryPosition = document.querySelector('#gallery-position');
 let galleryIndex = 0;
+let galleryRequest = 0;
+let plannedGalleryLeft = null;
 
 function syncGalleryControls() {
   galleryControls.style.display = gallery.scrollWidth <= gallery.clientWidth + 2 ? 'none' : '';
@@ -211,12 +269,30 @@ if ('ResizeObserver' in window) new ResizeObserver(syncGalleryControls).observe(
 else window.addEventListener('resize', syncGalleryControls, { passive: true });
 syncGalleryControls();
 
-function moveGallery(direction) {
+async function moveGallery(direction) {
   const max = Math.max(0, gallery.scrollWidth - gallery.clientWidth);
   const step = photos[1].offsetLeft - photos[0].offsetLeft;
-  const atStart = gallery.scrollLeft <= 2;
-  const atEnd = gallery.scrollLeft >= max - 2;
-  const target = direction > 0 ? (atEnd ? 0 : Math.min(max, gallery.scrollLeft + step)) : (atStart ? max : Math.max(0, gallery.scrollLeft - step));
+  const current = plannedGalleryLeft ?? gallery.scrollLeft;
+  const atStart = current <= 2;
+  const atEnd = current >= max - 2;
+  const target = direction > 0 ? (atEnd ? 0 : Math.min(max, current + step)) : (atStart ? max : Math.max(0, current - step));
+  const request = ++galleryRequest;
+  plannedGalleryLeft = target;
+  gallery.setAttribute('aria-busy', 'true');
+  let timeout;
+  try {
+    if (window.BlizheGalleryMedia?.prepareForScroll) {
+      await Promise.race([
+        window.BlizheGalleryMedia.prepareForScroll(target),
+        new Promise(resolve => { timeout = setTimeout(resolve, 1200); }),
+      ]);
+    }
+  } catch (_) {
+    // Persistent inline previews remain visible if a larger photograph fails.
+  } finally { clearTimeout(timeout); }
+  if (request !== galleryRequest) return;
+  plannedGalleryLeft = null;
+  gallery.removeAttribute('aria-busy');
   gallery.scrollTo({ left: target, behavior: motionAllowed() ? 'smooth' : 'instant' });
 }
 
@@ -232,6 +308,9 @@ let dragging = false;
 let dragStartX = 0;
 let dragStartScroll = 0;
 gallery.addEventListener('pointerdown', event => {
+  galleryRequest += 1;
+  plannedGalleryLeft = null;
+  gallery.removeAttribute('aria-busy');
   if (event.pointerType !== 'mouse' || event.button !== 0) return;
   dragging = true;
   dragStartX = event.clientX;
@@ -323,4 +402,63 @@ document.querySelectorAll('.button,.header-rsvp,.gallery-controls .icon-button,.
   control.addEventListener('pointerleave', release);
 });
 
+const entranceAnimations = new Set();
+const entranceSeen = new WeakSet();
+function finishEntrances() {
+  entranceAnimations.forEach(animation => {
+    try { animation.finish(); animation.cancel(); } catch (_) { animation.cancel(); }
+  });
+  entranceAnimations.clear();
+}
+function runEntrance(element, plan) {
+  if (entranceSeen.has(element)) return;
+  entranceSeen.add(element);
+  element.classList.add('enter-once', 'entry-seen');
+  if (!motionAllowed() || typeof element.animate !== 'function') return;
+  let frames;
+  if (plan.kind === 'ticket') {
+    frames = [{ transform: 'translateY(30px) scale(.94) rotate(-5deg)' }, { transform: 'translateY(0) scale(1) rotate(0deg)' }];
+  } else if (plan.kind === 'move') {
+    frames = [{ translate: `0 ${plan.distance}px` }, { translate: '0 0' }];
+  } else {
+    frames = [{ opacity: plan.opacity ?? .1, translate: `0 ${plan.distance}px` }, { opacity: 1, translate: '0 0' }];
+  }
+  const animation = element.animate(frames, { duration: plan.duration ?? 720, delay: plan.delay ?? 0, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'both' });
+  entranceAnimations.add(animation);
+  animation.finished.then(() => { entranceAnimations.delete(animation); animation.cancel(); scheduleScroll(); }, () => entranceAnimations.delete(animation));
+}
+function setupEntrances() {
+  const plans = new Map();
+  const add = (selector, plan) => document.querySelectorAll(selector).forEach((element, index) => plans.set(element, { ...plan, delay: (plan.delay ?? 0) + index * (plan.stagger ?? 0) }));
+  add('.site-header .wordmark,.site-header nav,.header-actions', { distance: 9, duration: 600, stagger: 60 });
+  add('.hero h1', { kind: 'move', distance: 18, duration: 800 });
+  add('.hero h1>span', { distance: 0, duration: 650, stagger: 60 });
+  add('.hero-description', { distance: 12, delay: 180, duration: 750 });
+  add('.hero .primary-button', { distance: 10, delay: 260, duration: 720 });
+  add('.hero-details', { distance: 10, delay: 320, duration: 700 });
+  add('.ticket-entrance', { kind: 'ticket', delay: 180, duration: 880 });
+  add('.knot-entrance', { distance: 20, delay: 300, duration: 800 });
+  add('.ribbon-entrance', { distance: 22, delay: 360, duration: 740 });
+  add('.ticket-help,.hero-bottom', { distance: 8, delay: 400, duration: 650 });
+  add('.section-intro h2,.programme-heading h2,.place-copy h2,.rsvp-body h2', { distance: 18, duration: 760 });
+  add('.section-intro>p,.programme-heading>p,.place-description,.rsvp-invitation', { distance: 12, delay: 80, duration: 720 });
+  add('.polaroid', { distance: 25, opacity: .3, duration: 850, stagger: 40 });
+  add('.programme-date', { distance: 13, delay: 90, duration: 800 });
+  add('.programme-list li', { distance: 9, opacity: .45, duration: 700, stagger: 55 });
+  add('.place-visual', { distance: 20, opacity: .4, duration: 900 });
+  add('.place-date,.place-image-caption', { distance: 10, delay: 180, duration: 750, stagger: 60 });
+  add('.place-details,.place-copy>.calendar-button,.rsvp-options,.faq', { distance: 10, delay: 110, duration: 720 });
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        runEntrance(entry.target, plans.get(entry.target));
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: .08, rootMargin: '0px 0px -12px 0px' });
+    plans.forEach((plan, element) => observer.observe(element));
+  } else plans.forEach((plan, element) => runEntrance(element, plan));
+}
+syncProgrammeClock(0);
 syncMotion();
+setupEntrances();
