@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
+  <script>if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('motion-ready');</script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#dce8f1">
   <meta name="robots" content="noindex, nofollow">
@@ -12,10 +13,10 @@
   <title>Ближе — вечер, который хочется разделить</title>
   <link rel="preload" href="fonts/dela-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/golos-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=eeca541d86">
+  <link rel="stylesheet" href="styles.css?v=947af4239a">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='20' fill='%2351192d'/%3E%3Cg fill='none' stroke='%23eff3ad' stroke-width='7'%3E%3Crect x='13' y='25' width='35' height='30' rx='15'/%3E%3Crect x='32' y='25' width='35' height='30' rx='15'/%3E%3C/g%3E%3C/svg%3E">
   <script src="gallery-media.js?v=aed5badef4" defer></script>
-  <script src="app.js?v=611bb1bcfc" defer></script>
+  <script src="app.js?v=a4de2ad31f" defer></script>
 </head>
 <body>
   <svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
@@ -39,7 +40,7 @@
     <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="hero-backdrop" aria-hidden="true"><img src="assets/hero-stage.webp" width="1600" height="1067" alt="" fetchpriority="high" decoding="async"></div>
       <div class="hero-ribbon" aria-hidden="true"><div class="ribbon-entrance"><img src="assets/ribbon.webp" width="1200" height="409" alt="" decoding="async"></div></div>
-      <div class="hero-copy">
+      <div class="hero-copy" data-entrance>
         <h1 id="hero-title"><span>Хороший</span><span>повод стать</span><span class="closer-word">ближе<span class="heading-dot">.</span></span></h1>
         <p class="hero-description">Вечер разговоров, музыки и новых знакомых. Встретимся в одном месте — остальное сложится.</p>
         <a class="button primary-button" href="#rsvp">Принять приглашение <span class="button-icon"><svg><use href="#diagonal"/></svg></span></a>
@@ -49,7 +50,7 @@
       <div class="ticket-stage" aria-label="Интерактивное приглашение">
         <div class="ticket-ground" aria-hidden="true"></div>
         <div class="ticket-world">
-          <div class="ticket-entrance">
+          <div class="ticket-entrance" data-entrance>
           <div class="ticket-float">
             <button class="ticket" id="ticket" type="button" aria-label="Перевернуть приглашение" aria-pressed="false" aria-describedby="ticket-help">
               <span class="ticket-rotor">
@@ -75,7 +76,7 @@
     </section>
 
     <section class="atmosphere section-pad" id="atmosphere" aria-labelledby="atmosphere-title">
-      <div class="section-intro"><h2 id="atmosphere-title">Встречи,<br>которые остаются.</h2><p>Отложить дела. Поделиться тем, что увлекает. Услышать любимую песню и задержаться чуть дольше, чем планировали.</p></div>
+      <div class="section-intro" data-entrance><h2 id="atmosphere-title">Встречи,<br>которые остаются.</h2><p>Отложить дела. Поделиться тем, что увлекает. Услышать любимую песню и задержаться чуть дольше, чем планировали.</p></div>
       <div class="gallery-scene">
         <img class="gallery-ribbon" src="assets/ribbon.webp" width="1200" height="409" alt="" loading="lazy" decoding="async" aria-hidden="true">
         <svg class="photo-thread" viewBox="0 0 1440 130" preserveAspectRatio="none" aria-hidden="true"><path d="M-60 20Q720 200 1500 15"/></svg>
@@ -92,7 +93,7 @@
     </section>
 
     <section class="programme section-pad" id="programme" aria-labelledby="programme-title">
-      <div class="programme-heading"><h2 id="programme-title">Никакой спешки.<br>Только планы <br>на этот вечер.</h2><p>Приходите к началу —<br>встретим, познакомим, нальём что-нибудь вкусное.</p>
+      <div class="programme-heading" data-entrance><h2 id="programme-title">Никакой спешки.<br>Только планы <br>на этот вечер.</h2><p>Приходите к началу —<br>встретим, познакомим, нальём что-нибудь вкусное.</p>
         <div class="programme-date"><img class="date-ribbon" src="assets/ribbon.webp" width="1200" height="409" alt="" loading="lazy" decoding="async" aria-hidden="true"><div class="date-paper"><div class="date-numeral" aria-label="28 ноября">28<span>ноября</span></div><div class="clock-wrap" role="img" aria-label="Время программы: 18:30"><svg class="date-clock" viewBox="0 0 100 100" aria-hidden="true"><circle class="clock-rim" cx="50" cy="50" r="47"/><circle class="clock-face" cx="50" cy="50" r="43"/><path class="clock-ticks" d="M50 9v5M91 50h-5M50 91v-5M9 50h5M70.5 14.5l-2 3.5M85.5 29.5l-3.5 2M85.5 70.5l-3.5-2M70.5 85.5l-2-3.5M29.5 85.5l2-3.5M14.5 70.5l3.5-2M14.5 29.5l3.5 2M29.5 14.5l2 3.5"/><g class="clock-numbers"><text x="50" y="25">12</text><text x="76" y="54">3</text><text x="50" y="82">6</text><text x="24" y="54">9</text></g><g class="clock-hand-hour"><path d="M50 54V31"/></g><g class="clock-hand-minute"><path d="M50 56V18"/></g><circle class="clock-pin" cx="50" cy="50" r="3"/></svg></div><div class="clock-readout"><span>Время программы</span><time class="clock-time" datetime="2026-11-28T18:30:00+03:00">18:30</time></div></div></div>
       </div>
       <div class="programme-track">
@@ -115,15 +116,15 @@
     </section>
 
     <section class="place section-pad" id="place" aria-labelledby="place-title">
-      <div class="place-visual"><div class="place-image"><img src="assets/atmosphere-3.webp" alt="Вечернее пространство с мягким светом и местами для общения" width="700" height="840" loading="lazy" decoding="async"></div><span class="place-image-caption">Представьте этот вечер здесь.</span><div class="place-date" aria-label="28 ноября, начало в 18:30"><strong>28.11</strong><span>Встречаемся в 18:30</span></div></div>
-      <div class="place-copy"><h2 id="place-title">Увидимся<br>в «Комнате».</h2><p class="place-description">Камерный лофт, большой стол и мягкий свет. Всё, что нужно, чтобы город остался за дверью.</p><dl class="place-details"><div><dt>Где</dt><dd><span data-event="city">Москва</span>, <span data-event="venue">лофт «Комната»</span><small>Точный адрес — в личном приглашении</small></dd></div><div><dt>Когда</dt><dd><span data-event="fullDate">28 ноября 2026</span><small>Собираемся с 18:30</small></dd></div></dl><button class="text-button calendar-button" type="button">Сохранить дату <svg><use href="#calendar"/></svg></button></div>
+      <div class="place-visual" data-entrance><div class="place-image"><img src="assets/atmosphere-3.webp" alt="Вечернее пространство с мягким светом и местами для общения" width="700" height="840" loading="lazy" decoding="async"></div><span class="place-image-caption">Представьте этот вечер здесь.</span><div class="place-date" aria-label="28 ноября, начало в 18:30"><strong>28.11</strong><span>Встречаемся в 18:30</span></div></div>
+      <div class="place-copy" data-entrance><h2 id="place-title">Увидимся<br>в «Комнате».</h2><p class="place-description">Камерный лофт, большой стол и мягкий свет. Всё, что нужно, чтобы город остался за дверью.</p><dl class="place-details"><div><dt>Где</dt><dd><span data-event="city">Москва</span>, <span data-event="venue">лофт «Комната»</span><small>Точный адрес — в личном приглашении</small></dd></div><div><dt>Когда</dt><dd><span data-event="fullDate">28 ноября 2026</span><small>Собираемся с 18:30</small></dd></div></dl><button class="text-button calendar-button" type="button">Сохранить дату <svg><use href="#calendar"/></svg></button></div>
     </section>
 
     <section class="rsvp section-pad" id="rsvp" aria-labelledby="rsvp-title">
       <img class="rsvp-ribbon" src="assets/ribbon.webp" width="1200" height="409" alt="" loading="lazy" decoding="async" aria-hidden="true">
       <div class="rsvp-top"><span class="small-wordmark">ближе.</span><span>28 ноября, 18:30</span></div>
-      <div class="rsvp-body"><h2 id="rsvp-title">Будете<br>с нами<span>?</span></h2><div class="rsvp-action"><p class="rsvp-invitation">Хороший вечер начинается<br>с простого «да».</p><div class="rsvp-options"><button class="button rsvp-yes" type="button" data-answer="yes">Буду <span class="button-icon"><svg><use href="#diagonal"/></svg></span></button><button class="rsvp-maybe" type="button" data-answer="maybe">Пока не знаю</button></div><div class="rsvp-result" hidden><div class="result-mark"><svg><use href="#check"/></svg></div><p class="result-title"></p><p>Дату можно сохранить в календарь.</p><button class="text-button calendar-button result-calendar" type="button">Сохранить дату <svg><use href="#calendar"/></svg></button><button class="rsvp-reset" type="button">Изменить ответ</button></div><span class="sr-only" role="status" id="rsvp-status"></span></div></div>
-      <div class="faq"><details><summary>Можно прийти одному?<span aria-hidden="true"></span></summary><p>Конечно. Этот вечер как раз для новых знакомств. Встретим у входа и поможем освоиться.</p></details><details><summary>Есть дресс-код?<span aria-hidden="true"></span></summary><p>Приходите в том, в чём вам удобно. Главное — хорошее настроение и желание провести вечер вместе.</p></details></div>
+      <div class="rsvp-body" data-entrance><h2 id="rsvp-title">Будете<br>с нами<span>?</span></h2><div class="rsvp-action"><p class="rsvp-invitation">Хороший вечер начинается<br>с простого «да».</p><div class="rsvp-options"><button class="button rsvp-yes" type="button" data-answer="yes">Буду <span class="button-icon"><svg><use href="#diagonal"/></svg></span></button><button class="rsvp-maybe" type="button" data-answer="maybe">Пока не знаю</button></div><div class="rsvp-result" hidden><div class="result-mark"><svg><use href="#check"/></svg></div><p class="result-title"></p><p>Дату можно сохранить в календарь.</p><button class="text-button calendar-button result-calendar" type="button">Сохранить дату <svg><use href="#calendar"/></svg></button><button class="rsvp-reset" type="button">Изменить ответ</button></div><span class="sr-only" role="status" id="rsvp-status"></span></div></div>
+      <div class="faq" data-entrance><details><summary>Можно прийти одному?<span aria-hidden="true"></span></summary><p>Конечно. Этот вечер как раз для новых знакомств. Встретим у входа и поможем освоиться.</p></details><details><summary>Есть дресс-код?<span aria-hidden="true"></span></summary><p>Приходите в том, в чём вам удобно. Главное — хорошее настроение и желание провести вечер вместе.</p></details></div>
       <footer class="site-footer"><a class="wordmark" href="#top" aria-label="Ближе — наверх">ближе<span class="wordmark-dot"></span></a><p>Демонстрационный проект. Мероприятие вымышлено, ответы не отправляются.<br>Фотографии передают настроение.</p><a class="back-to-top" href="#top">Наверх<svg><use href="#diagonal"/></svg></a></footer>
     </section>
   </main>

@@ -402,62 +402,26 @@ document.querySelectorAll('.button,.header-rsvp,.gallery-controls .icon-button,.
   control.addEventListener('pointerleave', release);
 });
 
-const entranceAnimations = new Set();
-const entranceSeen = new WeakSet();
+// A pre-paint offset, never opacity, establishes the first frame in CSS.
+// Only stable groups enter: photo swing and measured programme rows stay independent.
+let entranceObserver;
 function finishEntrances() {
-  entranceAnimations.forEach(animation => {
-    try { animation.finish(); animation.cancel(); } catch (_) { animation.cancel(); }
-  });
-  entranceAnimations.clear();
-}
-function runEntrance(element, plan) {
-  if (entranceSeen.has(element)) return;
-  entranceSeen.add(element);
-  element.classList.add('enter-once', 'entry-seen');
-  if (!motionAllowed() || typeof element.animate !== 'function') return;
-  let frames;
-  if (plan.kind === 'ticket') {
-    frames = [{ transform: 'translateY(30px) scale(.94) rotate(-5deg)' }, { transform: 'translateY(0) scale(1) rotate(0deg)' }];
-  } else if (plan.kind === 'move') {
-    frames = [{ translate: `0 ${plan.distance}px` }, { translate: '0 0' }];
-  } else {
-    frames = [{ opacity: plan.opacity ?? .1, translate: `0 ${plan.distance}px` }, { opacity: 1, translate: '0 0' }];
-  }
-  const animation = element.animate(frames, { duration: plan.duration ?? 720, delay: plan.delay ?? 0, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'both' });
-  entranceAnimations.add(animation);
-  animation.finished.then(() => { entranceAnimations.delete(animation); animation.cancel(); scheduleScroll(); }, () => entranceAnimations.delete(animation));
+  if (entranceObserver) entranceObserver.disconnect();
+  document.querySelectorAll('[data-entrance]').forEach(element => element.classList.add('entry-seen'));
 }
 function setupEntrances() {
-  const plans = new Map();
-  const add = (selector, plan) => document.querySelectorAll(selector).forEach((element, index) => plans.set(element, { ...plan, delay: (plan.delay ?? 0) + index * (plan.stagger ?? 0) }));
-  add('.site-header .wordmark,.site-header nav,.header-actions', { distance: 9, duration: 600, stagger: 60 });
-  add('.hero h1', { kind: 'move', distance: 18, duration: 800 });
-  add('.hero h1>span', { distance: 0, duration: 650, stagger: 60 });
-  add('.hero-description', { distance: 12, delay: 180, duration: 750 });
-  add('.hero .primary-button', { distance: 10, delay: 260, duration: 720 });
-  add('.hero-details', { distance: 10, delay: 320, duration: 700 });
-  add('.ticket-entrance', { kind: 'ticket', delay: 180, duration: 880 });
-  add('.knot-entrance', { distance: 20, delay: 300, duration: 800 });
-  add('.ribbon-entrance', { distance: 22, delay: 360, duration: 740 });
-  add('.ticket-help,.hero-bottom', { distance: 8, delay: 400, duration: 650 });
-  add('.section-intro h2,.programme-heading h2,.place-copy h2,.rsvp-body h2', { distance: 18, duration: 760 });
-  add('.section-intro>p,.programme-heading>p,.place-description,.rsvp-invitation', { distance: 12, delay: 80, duration: 720 });
-  add('.polaroid', { distance: 25, opacity: .3, duration: 850, stagger: 40 });
-  add('.programme-date', { distance: 13, delay: 90, duration: 800 });
-  add('.programme-list li', { distance: 9, opacity: .45, duration: 700, stagger: 55 });
-  add('.place-visual', { distance: 20, opacity: .4, duration: 900 });
-  add('.place-date,.place-image-caption', { distance: 10, delay: 180, duration: 750, stagger: 60 });
-  add('.place-details,.place-copy>.calendar-button,.rsvp-options,.faq', { distance: 10, delay: 110, duration: 720 });
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        runEntrance(entry.target, plans.get(entry.target));
-        observer.unobserve(entry.target);
-      });
-    }, { threshold: .08, rootMargin: '0px 0px -12px 0px' });
-    plans.forEach((plan, element) => observer.observe(element));
-  } else plans.forEach((plan, element) => runEntrance(element, plan));
+  if (!motionAllowed() || !('IntersectionObserver' in window)) {
+    finishEntrances();
+    return;
+  }
+  entranceObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('entry-seen');
+      entranceObserver.unobserve(entry.target);
+    });
+  }, { threshold: 0, rootMargin: '0px 0px 60px 0px' });
+  document.querySelectorAll('[data-entrance]:not(.entry-seen)').forEach(element => entranceObserver.observe(element));
 }
 syncProgrammeClock(0);
 syncMotion();
